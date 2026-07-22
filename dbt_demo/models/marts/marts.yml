@@ -1,0 +1,105 @@
+version: 2
+
+models:
+  - name: fct_orders
+    description: >
+      Một dòng đại diện cho một đơn hàng.
+      Model chứa thông tin trạng thái và giá trị thanh toán của order.
+    columns:
+      - name: order_id
+        description: "Khóa chính của đơn hàng."
+        data_tests:
+          - unique
+          - not_null
+          - relationships:
+              to: ref('stg_orders')
+              field: order_id
+
+      - name: customer_id
+        description: "Khách hàng thực hiện đơn hàng."
+        data_tests:
+          - not_null
+          - relationships:
+              to: ref('dim_customers')
+              field: customer_id
+
+      - name: order_date
+        description: "Ngày đơn hàng được tạo."
+        data_tests:
+          - not_null
+
+      - name: order_status
+        description: "Trạng thái đã chuẩn hóa của đơn hàng."
+        data_tests:
+          - accepted_values:
+              values:
+                - completed
+                - returned
+                - pending
+                - shipped
+
+      - name: payment_count
+        description: "Số payment records của đơn hàng."
+        data_tests:
+          - not_null
+
+      - name: credit_card_amount
+        description: "Tổng giá trị thanh toán bằng credit card."
+        data_tests:
+          - not_null
+
+      - name: coupon_amount
+        description: "Tổng giá trị thanh toán bằng coupon."
+        data_tests:
+          - not_null
+
+      - name: bank_transfer_amount
+        description: "Tổng giá trị thanh toán bằng bank transfer."
+        data_tests:
+          - not_null
+
+      - name: gift_card_amount
+        description: "Tổng giá trị thanh toán bằng gift card."
+        data_tests:
+          - not_null
+
+      - name: total_amount
+        description: "Tổng giá trị thanh toán của đơn hàng."
+        data_tests:
+          - not_null
+
+  - name: dim_customers
+    description: >
+      Một dòng đại diện cho một khách hàng, bao gồm các chỉ số
+      tổng hợp từ lịch sử đơn hàng.
+    columns:
+      - name: customer_id
+        description: "Khóa chính của khách hàng."
+        data_tests:
+          - unique
+          - not_null
+
+      - name: first_name
+        description: "Tên của khách hàng."
+
+      - name: last_name
+        description: "Họ của khách hàng."
+
+      - name: full_name
+        description: "Họ tên đầy đủ của khách hàng."
+
+      - name: first_order_date
+        description: "Ngày đặt đơn hàng đầu tiên."
+
+      - name: most_recent_order_date
+        description: "Ngày đặt đơn hàng gần nhất."
+
+      - name: number_of_orders
+        description: "Tổng số đơn hàng của khách hàng."
+        data_tests:
+          - not_null
+
+      - name: total_order_amount
+        description: "Tổng giá trị đơn hàng của khách hàng."
+        data_tests:
+          - not_null
