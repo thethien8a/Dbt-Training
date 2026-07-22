@@ -1,0 +1,19 @@
+# Python
+venv/
+__pycache__/
+*.pyc
+
+# dbt
+target/
+dbt_packages/
+logs/
+dbt_demo/target/
+dbt_demo/dbt_packages/
+dbt_demo/logs/
+
+# MacOS
+.DS_Store
+
+# Secrets & Environment variables
+.env
+script.sh

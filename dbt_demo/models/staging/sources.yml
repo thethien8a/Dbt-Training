@@ -1,0 +1,91 @@
+version: 2
+
+sources:
+  - name: postgres
+    description: "Dữ liệu nguồn thô từ PostgreSQL database"
+    schema: public # mặc định nếu không khai báo schema trong source thì dbt sẽ lấy tên source làm schema (postgres)
+    tables:
+      - name: raw_customers
+        description: "Bảng chứa thông tin thô của khách hàng"
+        columns:
+          - name: id
+            description: "Mã ID khách hàng"
+            data_tests:
+              - unique
+              - not_null
+          - name: first_name
+            description: "Tên"
+          - name: last_name
+            description: "Họ"
+
+      - name: raw_orders
+        description: "Bảng chứa thông tin thô của đơn hàng"
+        columns:
+          - name: id
+            description: "Mã ID đơn hàng"
+            data_tests:
+              - unique
+              - not_null
+          - name: user_id
+            description: "Mã ID người dùng đặt hàng"
+            data_tests:
+              - not_null
+              - relationships:
+                  to: source('postgres', 'raw_customers')
+                  field: id
+                  config:
+                    severity: warn
+          - name: order_date
+            description: "Ngày đặt hàng"
+          - name: status
+            description: "Trạng thái đơn hàng"
+            data_tests:
+              - accepted_values:
+                  values: ['completed', 'returned', 'pending', 'shipped']
+
+      - name: raw_payments
+        description: "Bảng chứa thông tin thô của thanh toán"
+        columns:
+          - name: id
+            description: "Mã ID giao dịch thanh toán"
+            data_tests:
+              - unique
+              - not_null
+          - name: order_id
+            description: "Mã ID đơn hàng liên quan"
+            data_tests:
+              - not_null
+              - relationships:
+                  to: source('postgres', 'raw_orders')
+                  field: id
+          - name: payment_method
+            description: "Phương thức thanh toán"
+            data_tests:
+              - accepted_values:
+                  values: ['credit_card', 'coupon', 'bank_transfer', 'gift_card']
+          - name: amount
+            description: "Số tiền thanh toán (tính theo cent)"
+
+# Dữ liệu ở nhiều schema khác nhau và database khác nhau
+# version: 2
+
+# sources:
+#   # -----------------------------------------------
+#   # Khối 1: Lấy dữ liệu từ schema "sales"
+#   # -----------------------------------------------
+#   - name: he_thong_ban_hang 
+#     schema: sales             # Chỉ định schema ở đây
+#     database: postgres        # Chỉ định database ở đây
+#     tables:
+#       - name: raw_orders
+#       - name: raw_customers
+
+#   # -----------------------------------------------
+#   # Khối 2: Lấy dữ liệu từ schema "marketing"
+#   # -----------------------------------------------
+#   - name: he_thong_quang_cao
+#     schema: marketing         # Schema thứ hai
+#     database: postgres        # Database thứ hai
+#     tables:
+#       - name: raw_campaigns
+#       - name: raw_leads

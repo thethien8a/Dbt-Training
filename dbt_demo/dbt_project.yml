@@ -1,0 +1,21 @@
+name: dbt_demo
+
+profile: dbt_demo
+
+seed-paths: ["seeds"]
+
+# Chúng ta có thể thêm cả các thư mục khác ["models", "data_sources"]
+model-paths: ["models"]
+macro-paths: ["macros"]
+clean-targets:
+  - "target"
+  - "dbt_packages"
+
+models:
+  dbt_demo:
+    staging: # subfolder of models
+      +materialized: view
+    intermediate:
+      +materialized: view
+    marts: # subfolder of models
+      +materialized: table

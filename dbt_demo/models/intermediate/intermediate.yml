@@ -1,0 +1,38 @@
+version: 2
+
+models:
+  - name: int_order_payments
+    description: >
+      Một dòng đại diện cho một đơn hàng có ít nhất một payment.
+      Các payment được tổng hợp theo phương thức thanh toán.
+    columns:
+      - name: order_id
+        description: "Đơn hàng được thanh toán."
+        data_tests:
+          - unique
+          - not_null
+          - relationships:
+              to: ref('stg_orders')
+              field: order_id
+
+      - name: payment_count
+        description: "Tổng số payment records của đơn hàng."
+        data_tests:
+          - not_null
+
+      - name: credit_card_amount_cents
+        description: "Tổng số tiền thanh toán bằng credit card, tính bằng cent."
+
+      - name: coupon_amount_cents
+        description: "Tổng số tiền thanh toán bằng coupon, tính bằng cent."
+
+      - name: bank_transfer_amount_cents
+        description: "Tổng số tiền thanh toán bằng bank transfer, tính bằng cent."
+
+      - name: gift_card_amount_cents
+        description: "Tổng số tiền thanh toán bằng gift card, tính bằng cent."
+
+      - name: total_amount_cents
+        description: "Tổng giá trị thanh toán của đơn hàng, tính bằng cent."
+        data_tests:
+          - not_null

@@ -1,0 +1,23 @@
+# tên "dbt_demo" phải khớp với tên trong dbt_project.yml
+dbt_demo:
+  target: dev
+  outputs:
+    dev:
+      type: postgres
+      host: localhost        
+      user: postgres         
+      password: postgres     
+      port: 5432             
+      dbname: postgres       
+      schema: public         
+      threads: 4             
+
+    prod:
+      type: postgres
+      host: "{{ env_var('DBT_PROD_HOST', 'your-prod-db-host') }}"
+      user: "{{ env_var('DBT_PROD_USER', 'dbt_user') }}"
+      password: "{{ env_var('DBT_PROD_PASSWORD', '') }}"
+      port: 6543
+      dbname: postgres
+      schema: public
+      threads: 8

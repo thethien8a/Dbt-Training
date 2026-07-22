@@ -1,0 +1,88 @@
+# Trả lời cho câu hỏi: Model và các cột phải đáp ứng hợp đồng gì?
+version: 2
+
+models:
+  - name: stg_customers # Phải khớp tên model trong stg_customers.sql
+    description: >
+      Một dòng đại diện cho một khách hàng từ hệ thống nguồn.
+      Model chuẩn hóa tên khóa chính của khách hàng.
+    columns:
+      - name: customer_id
+        description: "Khóa chính của khách hàng."
+        data_tests:
+          - unique
+          - not_null
+
+      - name: first_name
+        description: "Tên của khách hàng."
+
+      - name: last_name
+        description: "Họ của khách hàng."
+
+  - name: stg_orders # Phải khớp tên model trong stg_orders.sql
+    description: >
+      Một dòng đại diện cho một đơn hàng.
+      Model chuẩn hóa khóa khách hàng và trạng thái đơn hàng.
+    columns:
+      - name: order_id
+        description: "Khóa chính của đơn hàng."
+        data_tests:
+          - unique
+          - not_null
+
+      - name: customer_id
+        description: "Khách hàng thực hiện đơn hàng."
+        data_tests:
+          - not_null
+          - relationships:
+              to: ref('stg_customers')
+              field: customer_id
+              config:
+                severity: warn
+
+      - name: order_date
+        description: "Ngày khách hàng đặt hàng."
+
+      - name: order_status
+        description: "Trạng thái đã được chuẩn hóa của đơn hàng."
+        data_tests:
+          - accepted_values:
+              values:
+                - completed
+                - returned
+                - pending
+                - shipped
+
+  - name: stg_payments # Phải khớp tên model trong stg_payments.sql
+    description: >
+      Một dòng đại diện cho một giao dịch thanh toán.
+      Giá trị thanh toán được lưu bằng đơn vị cent.
+    columns:
+      - name: payment_id
+        description: "Khóa chính của giao dịch thanh toán."
+        data_tests:
+          - unique
+          - not_null
+
+      - name: order_id
+        description: "Đơn hàng được thanh toán."
+        data_tests:
+          - not_null
+          - relationships:
+              to: ref('stg_orders')
+              field: order_id
+
+      - name: payment_method
+        description: "Phương thức thanh toán."
+        data_tests:
+          - accepted_values:
+              values:
+                - credit_card
+                - coupon
+                - bank_transfer
+                - gift_card
+
+      - name: amount_cents
+        description: "Giá trị giao dịch thanh toán tính bằng cent."
+        data_tests:
+          - not_null
