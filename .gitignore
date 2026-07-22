@@ -17,3 +17,5 @@ dbt_demo/logs/
 # Secrets & Environment variables
 .env
 script.sh
+
+.serena/
