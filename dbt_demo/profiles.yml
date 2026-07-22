@@ -9,7 +9,7 @@ dbt_demo:
       password: postgres     
       port: 5432             
       dbname: postgres       
-      schema: public         
+      schema: dev
       threads: 4             
 
     prod:
@@ -19,5 +19,5 @@ dbt_demo:
       password: "{{ env_var('DBT_PROD_PASSWORD', '') }}"
       port: 6543
       dbname: postgres
-      schema: public
+      schema: prod
       threads: 8
