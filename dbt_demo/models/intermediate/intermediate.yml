@@ -36,3 +36,5 @@ models:
         description: "Tổng giá trị thanh toán của đơn hàng, tính bằng cent."
         data_tests:
           - not_null
+          - dbt_utils.accepted_range:
+              min_value: 0
