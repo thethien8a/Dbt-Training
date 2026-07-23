@@ -13,12 +13,11 @@ clean-targets:
 
 models:
   dbt_demo:
-    staging: # subfolder of models
-      +materialized: view
+    +materialized: "{{ 'table' if target.name == 'test' else 'view' }}"
+    staging: #subfolder of models
       +schema: staging
-    intermediate:
-      +materialized: view
+    intermediate: #subfolder of models
       +schema: intermediate
-    marts: # subfolder of models
+    marts: #subfolder of models
       +materialized: table
       +schema: marts

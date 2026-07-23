@@ -19,3 +19,4 @@ dbt_demo/logs/
 script.sh
 
 .serena/
+ddpe_cert/

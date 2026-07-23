@@ -1,9 +1,12 @@
 version: 2
 
 sources:
+#########################################################################################################################
   - name: postgres
     description: "Dữ liệu nguồn thô từ PostgreSQL database"
     schema: public # mặc định nếu không khai báo schema trong source thì dbt sẽ lấy tên source làm schema (postgres)
+    config:
+      enabled: "{{ target.name != 'test' }}"
     tables:
       - name: raw_customers
         description: "Bảng chứa thông tin thô của khách hàng"
@@ -66,26 +69,15 @@ sources:
           - name: amount
             description: "Số tiền thanh toán (tính theo cent)"
 
-# Dữ liệu ở nhiều schema khác nhau và database khác nhau
-# version: 2
+#########################################################################################################################
+  - name: iceberg
+    description: "Raw data dạng Iceberg trên Spark"
+    schema: source_data
+    config:
+      enabled: "{{ target.name == 'test' }}"
 
-# sources:
-#   # -----------------------------------------------
-#   # Khối 1: Lấy dữ liệu từ schema "sales"
-#   # -----------------------------------------------
-#   - name: he_thong_ban_hang 
-#     schema: sales             # Chỉ định schema ở đây
-#     database: postgres        # Chỉ định database ở đây
-#     tables:
-#       - name: raw_orders
-#       - name: raw_customers
-
-#   # -----------------------------------------------
-#   # Khối 2: Lấy dữ liệu từ schema "marketing"
-#   # -----------------------------------------------
-#   - name: he_thong_quang_cao
-#     schema: marketing         # Schema thứ hai
-#     database: postgres        # Database thứ hai
-#     tables:
-#       - name: raw_campaigns
-#       - name: raw_leads
+    tables:
+      - name: raw_customers
+      - name: raw_orders
+      - name: raw_payments
+#########################################################################################################################

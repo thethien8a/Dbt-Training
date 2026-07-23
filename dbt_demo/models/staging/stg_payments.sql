@@ -1,7 +1,9 @@
+{% set raw_source = 'iceberg' if target.name == 'test' else 'postgres' %}
+
 with source as (
 
     select *
-    from {{ source('postgres', 'raw_payments') }}
+    from {{ source(raw_source, 'raw_payments') }}
 
 ),
 

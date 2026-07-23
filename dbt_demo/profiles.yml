@@ -11,7 +11,24 @@ dbt_demo:
       dbname: postgres       
       schema: dev
       threads: 4             
-
+    test:
+      type: spark
+      method: session
+      host: spark-connect-placeholder # để vào cho đỡ bị lỗi là chính, ko cần fill in vào
+      schema: test
+      threads: 4
+      server_side_parameters:
+        spark.sql.defaultCatalog: iceberg
+        spark.sql.catalog.iceberg: org.apache.iceberg.spark.SparkCatalog
+        spark.sql.catalog.iceberg.type: glue
+        spark.sql.catalog.iceberg.glue.endpoint: "{{ env_var('DDPE_GLUE_ENDPOINT') }}"
+        spark.sql.catalog.iceberg.glue.id: thethien_test
+        spark.sql.catalog.iceberg.warehouse: "{{ env_var('DDPE_ICEBERG_WAREHOUSE') }}"
+        spark.sql.catalog.iceberg.client.region: "{{ env_var('DDPE_GLUE_REGION', 'us-east-1') }}"
+        spark.sql.catalog.iceberg.s3.endpoint: "{{ env_var('DDPE_ICEBERG_S3_ENDPOINT') }}"
+        spark.sql.catalog.iceberg.s3.access-key-id: "{{ env_var('DDPE_S3_ACCESS_KEY') }}"
+        spark.sql.catalog.iceberg.s3.secret-access-key: "{{ env_var('DDPE_S3_SECRET_KEY') }}"
+        spark.sql.catalog.iceberg.s3.path-style-access: "true"
     prod:
       type: postgres
       host: "{{ env_var('DBT_PROD_HOST', 'your-prod-db-host') }}"
