@@ -25,45 +25,20 @@ joined as (
             0
         ) as payment_count,
 
-        cast(
-            coalesce(
-                order_payments.credit_card_amount_cents,
-                0
-            ) / 100.0
-            as numeric(18, 2)
-        ) as credit_card_amount,
+        {{ cents_to_amount('order_payments.credit_card_amount_cents') }}
+            as credit_card_amount,
 
-        cast(
-            coalesce(
-                order_payments.coupon_amount_cents,
-                0
-            ) / 100.0
-            as numeric(18, 2)
-        ) as coupon_amount,
+        {{ cents_to_amount('order_payments.coupon_amount_cents') }}
+            as coupon_amount,
 
-        cast(
-            coalesce(
-                order_payments.bank_transfer_amount_cents,
-                0
-            ) / 100.0
-            as numeric(18, 2)
-        ) as bank_transfer_amount,
+        {{ cents_to_amount('order_payments.bank_transfer_amount_cents') }}
+            as bank_transfer_amount,
 
-        cast(
-            coalesce(
-                order_payments.gift_card_amount_cents,
-                0
-            ) / 100.0
-            as numeric(18, 2)
-        ) as gift_card_amount,
+        {{ cents_to_amount('order_payments.gift_card_amount_cents') }}
+            as gift_card_amount,
 
-        cast(
-            coalesce(
-                order_payments.total_amount_cents,
-                0
-            ) / 100.0
-            as numeric(18, 2)
-        ) as total_amount
+        {{ cents_to_amount('order_payments.total_amount_cents') }}
+            as total_amount
 
     from orders
     left join order_payments

@@ -104,3 +104,49 @@ models:
         description: "Tổng giá trị đơn hàng của khách hàng."
         data_tests:
           - not_null
+
+  - name: dim_date
+    description: >
+      Một dòng đại diện cho một ngày, từ 2023-01-01 đến hết 2025-01-01.
+    columns:
+      - name: date_key
+        description: "Khóa ngày ở định dạng số YYYYMMDD."
+        data_tests:
+          - unique
+          - not_null
+
+      - name: date_day
+        description: "Ngày dương lịch."
+        data_tests:
+          - unique
+          - not_null
+
+      - name: calendar_year
+        description: "Năm dương lịch."
+        data_tests:
+          - not_null
+
+      - name: calendar_quarter
+        description: "Quý trong năm, từ 1 đến 4."
+        data_tests:
+          - not_null
+
+      - name: month_of_year
+        description: "Tháng trong năm, từ 1 đến 12."
+        data_tests:
+          - not_null
+
+      - name: week_of_year
+        description: "Tuần trong năm."
+        data_tests:
+          - not_null
+
+      - name: day_of_month
+        description: "Ngày trong tháng."
+        data_tests:
+          - not_null
+
+      - name: day_of_year
+        description: "Ngày trong năm, từ 1 đến 366."
+        data_tests:
+          - not_null
