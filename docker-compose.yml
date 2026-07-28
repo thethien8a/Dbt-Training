@@ -1,0 +1,131 @@
+name: dbt-training-airflow
+
+x-airflow-common: &airflow-common
+  build:
+    context: .
+  image: dbt-training-airflow:local
+  environment: &airflow-common-env
+    AIRFLOW__API_AUTH__JWT_ISSUER: airflow
+    AIRFLOW__API_AUTH__JWT_SECRET: ${AIRFLOW_JWT_SECRET:-local-airflow-jwt-secret-change-me}
+    AIRFLOW__CORE__AUTH_MANAGER: airflow.providers.fab.auth_manager.fab_auth_manager.FabAuthManager
+    AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: "true"
+    AIRFLOW__CORE__EXECUTION_API_SERVER_URL: http://airflow-apiserver:8080/execution/
+    AIRFLOW__CORE__EXECUTOR: LocalExecutor
+    AIRFLOW__CORE__FERNET_KEY: ${AIRFLOW_FERNET_KEY:-}
+    AIRFLOW__CORE__DAGBAG_IMPORT_TIMEOUT: ${AIRFLOW_DAGBAG_IMPORT_TIMEOUT:-120}
+    AIRFLOW__CORE__LOAD_EXAMPLES: "false"
+    AIRFLOW__COSMOS__ENABLE_CACHE: "true"
+    AIRFLOW__COSMOS__ENABLE_CACHE_DBT_LS: "true"
+    AIRFLOW__COSMOS__ENABLE_DAG_VERSIONING: "true"
+    AIRFLOW__COSMOS__ENABLE_TELEMETRY: "false"
+    AIRFLOW__COSMOS__ENABLE_WATCHER_RELIABLE_RETRY: "true"
+    AIRFLOW__DAG_PROCESSOR__DAG_FILE_PROCESSOR_TIMEOUT: ${AIRFLOW_DAG_PROCESSOR_TIMEOUT:-180}
+    AIRFLOW__DAG_PROCESSOR__MIN_FILE_PROCESS_INTERVAL: ${AIRFLOW_DAG_PARSE_INTERVAL:-10}
+    AIRFLOW__DAG_PROCESSOR__REFRESH_INTERVAL: ${AIRFLOW_DAG_REFRESH_INTERVAL:-10}
+    AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@airflow-metadata-db/airflow
+    AIRFLOW__SCHEDULER__ENABLE_HEALTH_CHECK: "true"
+    DBT_PROD_HOST: ${DBT_PROD_HOST:-your-prod-db-host}
+    DBT_PROD_PASSWORD: ${DBT_PROD_PASSWORD:-}
+    DBT_PROD_USER: ${DBT_PROD_USER:-dbt_user}
+  user: "${AIRFLOW_UID:-50000}:0"
+  volumes:
+    - ./dags:/opt/airflow/dags
+    - ./dbt_demo:/opt/airflow/dbt/dbt_demo
+    - airflow-logs:/opt/airflow/logs
+  depends_on: &airflow-common-depends-on
+    airflow-metadata-db:
+      condition: service_healthy
+
+services:
+  airflow-metadata-db:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: airflow
+      POSTGRES_PASSWORD: airflow
+      POSTGRES_USER: airflow
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "airflow"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+    restart: unless-stopped
+    volumes:
+      - airflow-metadata-db-data:/var/lib/postgresql/data
+
+  airflow-init:
+    <<: *airflow-common
+    command: version
+    environment:
+      <<: *airflow-common-env
+      _AIRFLOW_DB_MIGRATE: "true"
+      _AIRFLOW_WWW_USER_CREATE: "true"
+      _AIRFLOW_WWW_USER_PASSWORD: ${AIRFLOW_ADMIN_PASSWORD:-airflow}
+      _AIRFLOW_WWW_USER_USERNAME: ${AIRFLOW_ADMIN_USERNAME:-airflow}
+    restart: "no"
+
+  airflow-apiserver:
+    <<: *airflow-common
+    command: api-server
+    ports:
+      - "${AIRFLOW_API_PORT:-8080}:8080"
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "http://localhost:8080/api/v2/monitor/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    restart: unless-stopped
+    depends_on:
+      <<: *airflow-common-depends-on
+      airflow-init:
+        condition: service_completed_successfully
+
+  airflow-scheduler:
+    <<: *airflow-common
+    command: scheduler
+    healthcheck:
+      test: ["CMD-SHELL", "airflow jobs check --job-type SchedulerJob --hostname $${HOSTNAME}"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    restart: unless-stopped
+    depends_on:
+      <<: *airflow-common-depends-on
+      airflow-init:
+        condition: service_completed_successfully
+
+  airflow-dag-processor:
+    <<: *airflow-common
+    command: dag-processor
+    healthcheck:
+      test: ["CMD-SHELL", "airflow jobs check --job-type DagProcessorJob --hostname $${HOSTNAME}"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    restart: unless-stopped
+    depends_on:
+      <<: *airflow-common-depends-on
+      airflow-init:
+        condition: service_completed_successfully
+
+  airflow-triggerer:
+    <<: *airflow-common
+    command: triggerer
+    healthcheck:
+      test: ["CMD-SHELL", "airflow jobs check --job-type TriggererJob --hostname $${HOSTNAME}"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    restart: unless-stopped
+    depends_on:
+      <<: *airflow-common-depends-on
+      airflow-init:
+        condition: service_completed_successfully
+
+volumes:
+  airflow-logs:
+  airflow-metadata-db-data:
