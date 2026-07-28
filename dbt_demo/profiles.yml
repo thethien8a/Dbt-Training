@@ -37,4 +37,4 @@ dbt_demo:
       port: 6543
       dbname: postgres
       schema: prod
-      threads: 8
+      threads: 4
