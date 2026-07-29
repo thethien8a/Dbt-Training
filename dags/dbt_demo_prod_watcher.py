@@ -2,11 +2,18 @@ from datetime import timedelta
 from pathlib import Path
 
 import pendulum
+from airflow.sdk import Param
 from cosmos import DbtDag, ExecutionConfig, ProfileConfig, ProjectConfig, RenderConfig
 from cosmos.constants import ExecutionMode, InvocationMode, LoadMode
 
 DBT_PROJECT_PATH = Path("/opt/airflow/dbt/dbt_demo")
 DBT_EXECUTABLE_PATH = Path("/opt/airflow/dbt_venv/bin/dbt")
+
+
+def apply_dbt_target(context):
+    # Cosmos needs a concrete target while parsing; the UI selection applies only at execution time.
+    context["task"].profile_config.target_name = context["params"]["dbt_target"]
+
 
 dbt_demo_prod_watcher = DbtDag(
     dag_id="dbt_demo_prod_watcher",
@@ -32,6 +39,7 @@ dbt_demo_prod_watcher = DbtDag(
     operator_args={
         "deferrable": True,
         "execution_timeout": timedelta(hours=2),
+        "on_execute_callback": apply_dbt_target,
     },
     default_args={
         "owner": "data-platform",
@@ -39,6 +47,15 @@ dbt_demo_prod_watcher = DbtDag(
         "retry_delay": timedelta(minutes=1),
     },
     schedule=None,
+    params={
+        "dbt_target": Param(
+            "prod",
+            type="string",
+            enum=["dev","test","prod"],
+            title="dbt target",
+            description="Target trong profiles.yml được dùng cho lần chạy này.",
+        ),
+    },
     start_date=pendulum.datetime(2026, 1, 1, tz="UTC"),
     catchup=False,
     max_active_runs=1,
