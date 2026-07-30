@@ -2,7 +2,7 @@ from datetime import timedelta
 from pathlib import Path
 
 import pendulum
-from airflow.sdk import Param
+from airflow.models.param import Param
 from cosmos import DbtDag, ExecutionConfig, ProfileConfig, ProjectConfig, RenderConfig
 from cosmos.constants import ExecutionMode, InvocationMode, LoadMode
 
