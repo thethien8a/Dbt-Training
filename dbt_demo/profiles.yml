@@ -9,17 +9,27 @@ dbt_demo:
       schema: test
       threads: 4
       server_side_parameters:
-        spark.sql.defaultCatalog: iceberg
-        spark.sql.catalog.iceberg: org.apache.iceberg.spark.SparkCatalog
-        spark.sql.catalog.iceberg.type: glue
-        spark.sql.catalog.iceberg.glue.endpoint: "{{ env_var('DDPE_GLUE_ENDPOINT') }}"
-        spark.sql.catalog.iceberg.glue.id: thethien_test
-        spark.sql.catalog.iceberg.warehouse: "{{ env_var('DDPE_ICEBERG_WAREHOUSE') }}"
-        spark.sql.catalog.iceberg.client.region: "{{ env_var('DDPE_GLUE_REGION', 'us-east-1') }}"
-        spark.sql.catalog.iceberg.s3.endpoint: "{{ env_var('DDPE_ICEBERG_S3_ENDPOINT') }}"
-        spark.sql.catalog.iceberg.s3.access-key-id: "{{ env_var('DDPE_S3_ACCESS_KEY') }}"
-        spark.sql.catalog.iceberg.s3.secret-access-key: "{{ env_var('DDPE_S3_SECRET_KEY') }}"
-        spark.sql.catalog.iceberg.s3.path-style-access: "true"
+        spark.sql.catalog.iceberg_staging: org.apache.iceberg.spark.SparkCatalog
+        spark.sql.catalog.iceberg_staging.type: glue
+        spark.sql.catalog.iceberg_staging.glue.endpoint: "{{ env_var('DDPE_GLUE_ENDPOINT') }}"
+        spark.sql.catalog.iceberg_staging.glue.id: "{{ env_var('DDPE_STAGING_GLUE_ID') }}"
+        spark.sql.catalog.iceberg_staging.warehouse: "{{ env_var('DDPE_ICEBERG_STAGING_WAREHOUSE') }}"
+        spark.sql.catalog.iceberg_staging.client.region: "{{ env_var('DDPE_GLUE_REGION', 'us-east-1') }}"
+        spark.sql.catalog.iceberg_staging.s3.endpoint: "{{ env_var('DDPE_ICEBERG_STAGING_S3_ENDPOINT') }}"
+        spark.sql.catalog.iceberg_staging.s3.access-key-id: "{{ env_var('DDPE_S3_STAGING_ACCESS_KEY') }}"
+        spark.sql.catalog.iceberg_staging.s3.secret-access-key: "{{ env_var('DDPE_S3_STAGING_SECRET_KEY') }}"
+        spark.sql.catalog.iceberg_staging.s3.path-style-access: "true"
+
+        spark.sql.catalog.iceberg_int: org.apache.iceberg.spark.SparkCatalog
+        spark.sql.catalog.iceberg_int.type: glue
+        spark.sql.catalog.iceberg_int.glue.endpoint: "{{ env_var('DDPE_GLUE_ENDPOINT') }}"
+        spark.sql.catalog.iceberg_int.glue.id: "{{ env_var('DDPE_INTERMEDIATE_GLUE_ID') }}"
+        spark.sql.catalog.iceberg_int.warehouse: "{{ env_var('DDPE_ICEBERG_INTERMEDIATE_WAREHOUSE') }}"
+        spark.sql.catalog.iceberg_int.client.region: "{{ env_var('DDPE_GLUE_REGION', 'us-east-1') }}"
+        spark.sql.catalog.iceberg_int.s3.endpoint: "{{ env_var('DDPE_ICEBERG_INTERMEDIATE_S3_ENDPOINT') }}"
+        spark.sql.catalog.iceberg_int.s3.access-key-id: "{{ env_var('DDPE_S3_INTERMEDIATE_ACCESS_KEY') }}"
+        spark.sql.catalog.iceberg_int.s3.secret-access-key: "{{ env_var('DDPE_S3_INTERMEDIATE_SECRET_KEY') }}"
+        spark.sql.catalog.iceberg_int.s3.path-style-access: "true"
     prod:
       type: postgres
       host: "{{ env_var('POSTGRES_PROD_HOST', 'your-postgres-prod-host') }}"

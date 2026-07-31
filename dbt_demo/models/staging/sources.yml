@@ -15,7 +15,7 @@ sources:
 #########################################################################################################################
   - name: iceberg
     description: "Raw data dạng Iceberg trên Spark"
-    schema: source_data
+    schema: iceberg_staging.source_data
     config:
       enabled: "{{ target.name == 'test' }}"
 

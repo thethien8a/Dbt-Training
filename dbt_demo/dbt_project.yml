@@ -15,9 +15,11 @@ models:
   dbt_demo:
     +materialized: "{{ 'table' if target.name == 'test' else 'view' }}"
     staging: #subfolder of models
-      +schema: staging
+      +schema: "{{ 'iceberg_staging.staging' if target.name == 'test' else 'staging' }}"
+      +file_format: iceberg
     intermediate: #subfolder of models
-      +schema: intermediate
+      +schema: "{{ 'iceberg_int.intermediate' if target.name == 'test' else 'intermediate' }}"
+      +file_format: iceberg
     marts: #subfolder of models
       +materialized: table
       +schema: marts
