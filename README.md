@@ -1,0 +1,1 @@
+Chia sẻ kiến thức dbt cơ bản cho mấy anh em công ty
